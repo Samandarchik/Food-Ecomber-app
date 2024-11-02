@@ -1,0 +1,41 @@
+<string>LaunchScreen</string>
+<key>NSCameraUsegeDescription</key>
+<string>We require camera access to connect to a call</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>We require microphone access to connect to a call</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Allow access to photo library</string>
+
+
+
+Text(
+                "Item Price",
+                style: AppWidget.semiBoldTextFeildSyle(),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                width: size.width,
+                decoration: BoxDecoration(
+                    color: white1, borderRadius: BorderRadius.circular(10)),
+                child: TextField(
+                  maxLines: 1,
+                  controller: pricecontroller,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Enter Item Price",
+                      hintStyle: AppWidget.lighTextFeildSyle()),
+                ),
+              ),
+
+
+
+              leading: Image.network(
+                item['Images'],
+                width: 30,
+                height: 30,
+              ),
+              title: Text(item['Name']),
+              subtitle: Text('\$${item['Price']}'),
