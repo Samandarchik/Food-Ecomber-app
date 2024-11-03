@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:fooddeliveryapp/admin/admin_login.dart';
-import 'package:fooddeliveryapp/admin/home_admin.dart';
+
 import 'package:fooddeliveryapp/pages/bottom_nav.dart';
 import 'package:fooddeliveryapp/ui.dart';
 
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: "Food App",
       debugShowCheckedModeBanner: false,
-      home: BottomNav(),
+      home: Ui(),
     );
   }
 }

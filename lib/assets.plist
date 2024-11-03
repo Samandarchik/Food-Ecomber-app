@@ -32,10 +32,27 @@ Text(
 
 
 
-              leading: Image.network(
-                item['Images'],
-                width: 30,
-                height: 30,
-              ),
-              title: Text(item['Name']),
-              subtitle: Text('\$${item['Price']}'),
+               Widget buildFoodCard(
+      String imagePath, String title, String subtitle, String price) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Details()));
+      },
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        child: Material(
+          elevation: 5,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset(imagePath,
+                    height: 150, width: 150, fit: BoxFit.cover),
+                Text(title, style: AppWidget.semiBoldTextFeildSyle()),
+                const SizedBox(height: 5),
+                Text(subtitle, style: AppWidget.lighTextFeildSyle()),
+                const SizedBox(height: 5),
+                Text(price, style: AppWidget.semiBoldTextFeildSyle()),

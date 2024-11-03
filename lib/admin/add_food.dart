@@ -17,29 +17,37 @@ class _AddFoodState extends State<AddFood> {
   TextEditingController pricecontroller = TextEditingController();
   TextEditingController detailcontroller = TextEditingController();
   TextEditingController imagescontroller = TextEditingController();
+  TextEditingController documentIdcontroller = TextEditingController();
+
   String? selectedImage;
 
   uploadItem() async {
-    if (imagescontroller.text != "" &&
-        namecontroller.text != "" &&
-        pricecontroller.text != "" &&
-        detailcontroller.text != "") {
+    if (imagescontroller.text.isNotEmpty &&
+        namecontroller.text.isNotEmpty &&
+        pricecontroller.text.isNotEmpty &&
+        detailcontroller.text.isNotEmpty) {
       Map<String, dynamic> addItem = {
         "Images": imagescontroller.text,
         "Name": namecontroller.text,
         "Price": pricecontroller.text,
         "Detail": detailcontroller.text
       };
+
+      // O'zgaruvchini o'zingizning ID bilan belgilash
+      String documentId = documentIdcontroller.text; // O'z ID ni qo'ying
+
       await FirebaseFirestore.instance
           .collection(value!.trim())
-          .add(addItem)
+          .doc(documentId) // .doc() metodidan foydalanamiz
+          .set(addItem) // set() metodini chaqiramiz
           .then((_) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: orange,
-            content: Text(
-              "Food Item has been added Successfully",
-              style: textStyle18,
-            )));
+          backgroundColor: green,
+          content: Text(
+            "Food Item has been added Successfully",
+            style: textStyle18,
+          ),
+        ));
       }).catchError((e) {
         print("Error adding item: $e");
       });
@@ -71,9 +79,6 @@ class _AddFoodState extends State<AddFood> {
                 style: AppWidget.semiBoldTextFeildSyle(),
               ),
               SizedBox(
-                height: 20,
-              ),
-              SizedBox(
                 height: 10,
               ),
               Container(
@@ -91,7 +96,7 @@ class _AddFoodState extends State<AddFood> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               Text(
                 "Item Name",
@@ -114,7 +119,7 @@ class _AddFoodState extends State<AddFood> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               Text(
                 "Item Price",
@@ -129,6 +134,7 @@ class _AddFoodState extends State<AddFood> {
                 decoration: BoxDecoration(
                     color: white1, borderRadius: BorderRadius.circular(10)),
                 child: TextField(
+                  keyboardType: TextInputType.numberWithOptions(),
                   maxLines: 1,
                   controller: pricecontroller,
                   decoration: InputDecoration(
@@ -138,7 +144,31 @@ class _AddFoodState extends State<AddFood> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 20,
+              ),
+              Text(
+                "Item Document ID",
+                style: AppWidget.semiBoldTextFeildSyle(),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                width: size.width,
+                decoration: BoxDecoration(
+                    color: white1, borderRadius: BorderRadius.circular(10)),
+                child: TextField(
+                  maxLines: 1,
+                  controller: documentIdcontroller,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Enter Item Document ID",
+                      hintStyle: AppWidget.lighTextFeildSyle()),
+                ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Text(
                 "Item Detail",
@@ -155,6 +185,7 @@ class _AddFoodState extends State<AddFood> {
                 child: TextField(
                   maxLines: 6,
                   controller: detailcontroller,
+                  textInputAction: TextInputAction.done,
                   decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: "Enter Item Detail",

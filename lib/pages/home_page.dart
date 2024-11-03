@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fooddeliveryapp/admin/admin_login.dart';
 import 'package:fooddeliveryapp/pages/details.dart';
 import 'package:fooddeliveryapp/servise/database.dart';
 import 'package:fooddeliveryapp/widget/widget_support.dart';
@@ -12,9 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool icecream = false, pizza = false, salad = false, burger = false;
+  bool icecream = false, pizza = true, salad = false, burger = false;
   Stream? fooditemStream;
-
   ontheload() async {
     fooditemStream = await DatabaseMethods().getFoodItem("Pizza");
     setState(() {});
@@ -26,163 +26,148 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Widget allItems() {
+  Widget allItemsVertical() {
     return StreamBuilder(
-      stream: fooditemStream,
-      builder: (context, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || snapshot.data.docs.isEmpty) {
-          return Center(child: Text("No items found"));
-        }
-        final items = snapshot.data.docs;
-        return ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            var item = items[index];
-            return ListTile(
-              leading: Image.network(
-                item['Images'],
-                width: 30,
-                height: 30,
-              ),
-              title: Text(item['Name']),
-              subtitle: Text('\$${item['Price']}'),
-            );
-          },
-        );
-      },
-    );
+        stream: fooditemStream,
+        builder: (context, AsyncSnapshot snapshot) {
+          return snapshot.hasData
+              ? ListView.builder(
+                  itemCount: snapshot.data.docs.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot ds = snapshot.data.docs[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Details(
+                                      images: ds["Images"],
+                                      name: ds["Name"],
+                                      dedails: ds["Detail"],
+                                      price: ds["Price"],
+                                    )));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20)),
+                        margin: const EdgeInsets.only(right: 20, bottom: 20),
+                        child: Material(
+                          elevation: 5,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(ds["Images"],
+                                    fit: BoxFit.cover, height: 120, width: 120),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Text(
+                                      ds["Name"],
+                                      style: AppWidget.semiBoldTextFeildSyle(),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Text(
+                                      "Honey goot cheese",
+                                      style: AppWidget.lighTextFeildSyle(),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    " ${ds["Price"]} 000 So'm",
+                                    style: AppWidget.semiBoldTextFeildSyle(),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  })
+              : CircularProgressIndicator.adaptive();
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          textAlign: TextAlign.center,
+          "Shashlik Uz",
+          style: AppWidget.boldTextFeildstyle(),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AdminLogin()));
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.shopping_cart_outlined,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Container(
-        margin: const EdgeInsets.only(top: 50, left: 20),
+        margin: const EdgeInsets.only(left: 20, bottom: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  "Hello Samandar",
-                  style: AppWidget.boldTextFeildstyle(),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {},
-                  icon: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-              ],
+            const SizedBox(
+              height: 20,
             ),
-            const SizedBox(height: 20),
-            Text("Delicious Food", style: AppWidget.headlineTextFeildSyle()),
-            Text("Discover and Get Great Food",
-                style: AppWidget.lighTextFeildSyle()),
-            const SizedBox(height: 20),
+            Text(
+              "Delicious Food",
+              style: AppWidget.headlineTextFeildSyle(),
+            ),
+            Text(
+              "Discover and Get Great Food",
+              style: AppWidget.lighTextFeildSyle(),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             Container(
-                margin: const EdgeInsets.only(right: 20), child: showItem()),
-            const SizedBox(height: 30),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  buildFoodCard("assets/images/salad2.png", "Veggie Taco Hash",
-                      "Fresh and Healthy", "\$25"),
-                  const SizedBox(width: 15),
-                  buildFoodCard("assets/images/salad4.png", "Mix Veg Salad",
-                      "Spicy with Onion", "\$28"),
-                ],
-              ),
+              margin: const EdgeInsets.only(right: 20),
+              child: showItem(),
             ),
-            const SizedBox(height: 30),
-            buildFeaturedFoodCard("assets/images/salad3.png",
-                "Mediterranean Chickpea Salad", "Honey goat cheese", "\$28"),
-            Expanded(child: allItems()), // ListView ni joylashtirish uchun
+            SizedBox(
+              height: 20,
+            ),
+            Expanded(
+              child: allItemsVertical(),
+            )
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildFoodCard(
-      String imagePath, String title, String subtitle, String price) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Details()));
-      },
-      child: Container(
-        margin: const EdgeInsets.all(4),
-        child: Material(
-          elevation: 5,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(imagePath,
-                    height: 150, width: 150, fit: BoxFit.cover),
-                Text(title, style: AppWidget.semiBoldTextFeildSyle()),
-                const SizedBox(height: 5),
-                Text(subtitle, style: AppWidget.lighTextFeildSyle()),
-                const SizedBox(height: 5),
-                Text(price, style: AppWidget.semiBoldTextFeildSyle()),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildFeaturedFoodCard(
-      String imagePath, String title, String subtitle, String price) {
-    return Container(
-      margin: const EdgeInsets.only(right: 20),
-      child: Material(
-        elevation: 5,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(imagePath, height: 120, width: 120),
-              const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child:
-                        Text(title, style: AppWidget.semiBoldTextFeildSyle()),
-                  ),
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: Text(subtitle, style: AppWidget.lighTextFeildSyle()),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(price, style: AppWidget.semiBoldTextFeildSyle()),
-                ],
-              )
-            ],
-          ),
         ),
       ),
     );
@@ -192,64 +177,112 @@ class _HomePageState extends State<HomePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        buildFilterItem("assets/images/ice-cream.png", () {
-          setState(() {
+        GestureDetector(
+          onTap: () async {
             icecream = true;
             pizza = false;
             salad = false;
             burger = false;
-          });
-        }, icecream),
-        buildFilterItem("assets/images/pizza.png", () {
-          setState(() {
+            fooditemStream = await DatabaseMethods().getFoodItem("Ice-cream");
+            setState(() {});
+          },
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: icecream ? black : white),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  "assets/images/ice-cream.png",
+                  fit: BoxFit.cover,
+                  height: 40,
+                  width: 40,
+                  color: icecream ? white : black,
+                )),
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
             icecream = false;
             pizza = true;
             salad = false;
+            fooditemStream = await DatabaseMethods().getFoodItem("Pizza");
             burger = false;
-          });
-        }, pizza),
-        buildFilterItem("assets/images/salad.png", () {
-          setState(() {
+            setState(() {});
+          },
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: pizza ? black : white),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  "assets/images/pizza.png",
+                  color: pizza ? white : black,
+                  fit: BoxFit.cover,
+                  height: 40,
+                  width: 40,
+                )),
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
             icecream = false;
             pizza = false;
             salad = true;
             burger = false;
-          });
-        }, salad),
-        buildFilterItem("assets/images/burger.png", () {
-          setState(() {
+            fooditemStream = await DatabaseMethods().getFoodItem("Salad");
+
+            setState(() {});
+          },
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: salad ? black : white),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  "assets/images/salad.png",
+                  color: salad ? white : black,
+                  fit: BoxFit.cover,
+                  height: 40,
+                  width: 40,
+                )),
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
             icecream = false;
             pizza = false;
             salad = false;
+            fooditemStream = await DatabaseMethods().getFoodItem("Burger");
             burger = true;
-          });
-        }, burger),
-      ],
-    );
-  }
-
-  Widget buildFilterItem(
-      String imagePath, VoidCallback onTap, bool isSelected) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Material(
-        elevation: 5,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
+            setState(() {});
+          },
+          child: Material(
+            elevation: 5,
             borderRadius: BorderRadius.circular(10),
-            color: isSelected ? Colors.black : Colors.white,
-          ),
-          padding: const EdgeInsets.all(8),
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            height: 40,
-            width: 40,
-            color: isSelected ? Colors.white : Colors.black,
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: burger ? black : white),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  "assets/images/burger.png",
+                  color: burger ? white : black,
+                  fit: BoxFit.cover,
+                  height: 40,
+                  width: 40,
+                )),
           ),
         ),
-      ),
+      ],
     );
   }
 }

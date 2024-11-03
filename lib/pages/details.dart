@@ -1,131 +1,218 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fooddeliveryapp/widget/widget_support.dart';
+import 'package:intl/intl.dart';
 
 class Details extends StatefulWidget {
-  const Details({super.key});
+  final String images;
+  final String name;
+  final String price;
+  final String dedails;
+  const Details(
+      {super.key,
+      required this.images,
+      required this.name,
+      required this.dedails,
+      required this.price});
 
   @override
   State<Details> createState() => _DetailsState();
 }
 
 class _DetailsState extends State<Details> {
-  int number = 1;
-  int time = 30;
-  int price = 28;
+  String formatNumber(int number) {
+    final NumberFormat formatter = NumberFormat('#,###');
+    return formatter.format(number);
+  }
+
+  int number = 1, time = 30, total = 0;
+  String? id;
+
+  @override
+  void initState() {
+    super.initState();
+    total = int.parse(widget.price);
+  }
+
+  void _updateTotal() {
+    total = int.parse(widget.price) * number; // Total qiymatini yangilang
+  }
+
+  Timer? _timer;
+
+  void _startAdding() {
+    _timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+      setState(() {
+        number++;
+        _updateTotal();
+      });
+    });
+  }
+
+  void _startRemov() {
+    _timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+      setState(() {
+        if (number > 1) {
+          number--;
+          _updateTotal();
+        }
+      });
+    });
+  }
+
+  void _stopAdding() {
+    if (_timer != null) {
+      _timer!.cancel(); // Timer ni to'xtatadi
+      _timer = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20, top: 50),
+      appBar: AppBar(
+        title: Text(
+          "Shashlik Uz",
+          style: AppWidget.boldTextFeildstyle(),
+        ),
+      ),
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Icon(Icons.arrow_back_ios),
-            ),
-            Image.asset(
-              "assets/images/salad2.png",
+            Image.network(
+              widget.images,
               width: size.width,
               height: size.height / 2.5,
-              fit: BoxFit.fill,
+              fit: BoxFit.cover,
             ),
             SizedBox(
               height: 15,
             ),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Mediterranean",
-                      style: AppWidget.semiBoldTextFeildSyle(),
-                    ),
-                    Text(
-                      "Chickpea Salad",
-                      style: AppWidget.boldTextFeildstyle(),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (number > 1) {
-                        number--;
-                      }
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: black, borderRadius: BorderRadius.circular(8)),
-                    child: Icon(
-                      Icons.remove,
-                      color: white,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.name,
+                        style: AppWidget.semiBoldTextFeildSyle(),
+                      ),
+                      Text(
+                        "Chickpea Salad",
+                        style: AppWidget.boldTextFeildstyle(),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  GestureDetector(
+                    onTapDown: (_) {
+                      _startRemov(); // Bosish bosilganda boshlaydi
+                    },
+                    onTapUp: (_) {
+                      _stopAdding(); // Bosish tugagach to'xtatadi
+                    },
+                    onTapCancel: () {
+                      _stopAdding(); // Agar bosish bekor qilinsa to'xtatadi
+                    },
+                    onTap: () {
+                      setState(() {
+                        if (number > 1) {
+                          number--;
+                          total = total - int.parse(widget.price);
+                        }
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: black, borderRadius: BorderRadius.circular(8)),
+                      child: Icon(
+                        Icons.remove,
+                        color: white,
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  width: 30,
-                  margin: EdgeInsets.all(10),
-                  child: Center(
-                    child: Text(
-                      number.toString(),
-                      style: AppWidget.semiBoldTextFeildSyle(),
+                  Container(
+                    width: 30,
+                    margin: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        number.toString(),
+                        style: AppWidget.semiBoldTextFeildSyle(),
+                      ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      number++;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: black, borderRadius: BorderRadius.circular(8)),
-                    child: Icon(
-                      Icons.add,
-                      color: white,
+                  GestureDetector(
+                    onTapDown: (_) {
+                      _startAdding(); // Bosish bosilganda boshlaydi
+                    },
+                    onTapUp: (_) {
+                      _stopAdding(); // Bosish tugagach to'xtatadi
+                    },
+                    onTapCancel: () {
+                      _stopAdding(); // Agar bosish bekor qilinsa to'xtatadi
+                    },
+                    onTap: () {
+                      setState(() {
+                        total = total + int.parse(widget.price);
+                        number++;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: black, borderRadius: BorderRadius.circular(8)),
+                      child: Icon(
+                        Icons.add,
+                        color: white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             SizedBox(
-              height: 10,
+              height: 40,
             ),
-            Text(
-              maxLines: 3,
-              "Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard",
-              style: AppWidget.lighTextFeildSyle(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: SizedBox(
+                height: size.height * .15,
+                child: Text(
+                  maxLines: 6,
+                  widget.dedails,
+                  style: AppWidget.lighTextFeildSyle(),
+                ),
+              ),
             ),
             SizedBox(
               height: 30,
             ),
-            Row(
-              children: [
-                Text(
-                  "Delivery Time    ",
-                  style: AppWidget.semiBoldTextFeildSyle(),
-                ),
-                Icon(
-                  Icons.alarm,
-                  color: Colors.black54,
-                ),
-                Text(
-                  " $time mint",
-                  style: AppWidget.semiBoldTextFeildSyle(),
-                )
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                children: [
+                  Text(
+                    "Delivery Time    ",
+                    style: AppWidget.semiBoldTextFeildSyle(),
+                  ),
+                  Icon(
+                    Icons.alarm,
+                    color: Colors.black54,
+                  ),
+                  Text(
+                    " $time mint",
+                    style: AppWidget.semiBoldTextFeildSyle(),
+                  )
+                ],
+              ),
             ),
             Spacer(),
             Padding(
-              padding: const EdgeInsets.only(bottom: 40.0),
+              padding: const EdgeInsets.only(left: 10, right: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -136,9 +223,14 @@ class _DetailsState extends State<Details> {
                         "Total Price",
                         style: AppWidget.semiBoldTextFeildSyle(),
                       ),
-                      Text(
-                        "\$${price * number}",
-                        style: AppWidget.headlineTextFeildSyle(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            " ${formatNumber(total)} 000",
+                            style: AppWidget.headlineTextFeildSyle(),
+                          ),
+                        ],
                       )
                     ],
                   ),
@@ -150,12 +242,22 @@ class _DetailsState extends State<Details> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          "Add to Card",
-                          style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
+                        GestureDetector(
+                          onTap: () async {
+                            Map<String, dynamic> addFoodtoCart = {
+                              "Name": widget.name,
+                              "Quantity": number.toString(),
+                              "Total": total.toString(),
+                              "Image": widget.images
+                            };
+                          },
+                          child: Text(
+                            "Add to Card",
+                            style: TextStyle(
+                                color: white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18),
+                          ),
                         ),
                         SizedBox(
                           width: 30,
@@ -183,5 +285,11 @@ class _DetailsState extends State<Details> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _stopAdding(); // Widget o'chirilganda Timer ni to'xtatadi
+    super.dispose();
   }
 }

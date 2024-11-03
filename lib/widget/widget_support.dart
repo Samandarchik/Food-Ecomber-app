@@ -20,7 +20,7 @@ class AppWidget {
   static TextStyle lighTextFeildSyle() {
     return TextStyle(
         color: Colors.black38,
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: FontWeight.w500,
         fontFamily: "Poppins");
   }
@@ -38,7 +38,8 @@ const Color black = Colors.black;
 const Color white = Colors.white;
 const Color white1 = Color(0xffececf8);
 const TextStyle textStyle18 = TextStyle(fontSize: 18);
-const Color orange = Colors.orangeAccent;
+const Color green = Colors.green;
+const Color orange = Colors.orange;
 const Color red = Colors.red;
 const TextStyle textStyle = TextStyle(
     color: Colors.white,
