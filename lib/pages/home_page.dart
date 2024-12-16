@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
               ),
               child: const Icon(
                 Icons.shopping_cart_outlined,
-                color: Colors.white,
+                color: white,
               ),
             ),
           ),
